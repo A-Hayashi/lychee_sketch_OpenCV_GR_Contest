@@ -114,7 +114,7 @@ void SkinDetect(Mat &img_hsv, Mat &img_gray, vector<Point> &contour, Point2f &ce
 
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
-//	findContours(img_gray, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+	findContours(img_gray, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
 	if(contours.size() > 0){
 		vector<Moments> mu(contours.size());
@@ -138,8 +138,8 @@ void SkinDetect(Mat &img_hsv, Mat &img_gray, vector<Point> &contour, Point2f &ce
 		center = mc[indexOfBiggestContour];
 	}else{
 		contour.clear();
-		center.x = 0;
-		center.y = 0;
+		center.x = -1;
+		center.y = -1;
 	}
 
 }
@@ -163,7 +163,7 @@ void loop(){
     vector<Point> contour;
     Point2f center;
     SkinDetect(img_hsv, img_gray, contour, center);
-	Rect rect = boundingRect (contour);
+
 //	rect.x -= 40;
 //	rect.y -= 40;
 //	rect.width += 80;
@@ -181,10 +181,13 @@ void loop(){
     img_bgr2 = Mat::zeros(IMAGE_VW, IMAGE_HW, CV_8UC3);
 
     if(flag==0x00){
-    	rectangle(img_bgr, rect, blue, 2);
     	rectangle(img_bgr, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
-		drawContours(img_bgr, contour, 0, sky, 2, 8, vector<Vec4i>(), 0, Point());
-		circle(img_bgr, center, 5, red, -1, 8, 0);
+    	if(contour.size() > 0){
+    		Rect rect = boundingRect(contour);
+			rectangle(img_bgr, rect, blue, 2);
+			polylines(img_bgr, contour, true, sky, 2, 8);
+			circle(img_bgr, center, 5, red, -1, 8, 0);
+    	}
     	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_bgr.data, Camera::FORMAT_RGB888);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
     }else if(flag==0x01){
