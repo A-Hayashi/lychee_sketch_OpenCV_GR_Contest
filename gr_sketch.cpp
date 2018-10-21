@@ -114,7 +114,7 @@ void SkinDetect(Mat &img_hsv, Mat &img_gray, vector<Point> &contour, Point2f &ce
 
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
-	findContours(img_gray, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+//	findContours(img_gray, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
 	if(contours.size() > 0){
 		vector<Moments> mu(contours.size());
@@ -162,7 +162,7 @@ void loop(){
 
     vector<Point> contour;
     Point2f center;
-//    SkinDetect(img_hsv, img_gray, contour, center);
+    SkinDetect(img_hsv, img_gray, contour, center);
 	Rect rect = boundingRect (contour);
 //	rect.x -= 40;
 //	rect.y -= 40;
