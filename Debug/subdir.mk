@@ -4,13 +4,22 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../gr_sketch.cpp 
+../findEyeCenter.cpp \
+../findEyeCorner.cpp \
+../gr_sketch.cpp \
+../helpers.cpp 
 
 OBJS += \
-./gr_sketch.o 
+./findEyeCenter.o \
+./findEyeCorner.o \
+./gr_sketch.o \
+./helpers.o 
 
 CPP_DEPS += \
-./gr_sketch.d 
+./findEyeCenter.d \
+./findEyeCorner.d \
+./gr_sketch.d \
+./helpers.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

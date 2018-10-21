@@ -13,25 +13,35 @@
 #include "SdUsbConnect.h"
 
 #include "constants.h"
+#include "findEyeCenter.h"
+#include "findEyeCorner.h"
 
 #define IMAGE_HW 320
 #define IMAGE_VW 240
 using namespace cv;
 
 /* FACE DETECTOR Parameters */
-#define DETECTOR_SCALE_FACTOR (2)
-#define DETECTOR_MIN_NEIGHBOR (2)
-#define DETECTOR_MIN_SIZE     (30)
+#define DETECTOR_SCALE_FACTOR (1.99)
+#define DETECTOR_MIN_NEIGHBOR (3)
+#define DETECTOR_MIN_SIZE     (80)
 #define FACE_DETECTOR_MODEL     "/storage/lbpcascade_frontalface.xml"
-
 
 static Camera camera(IMAGE_HW, IMAGE_VW);
 static DisplayApp  display_app;
 static CascadeClassifier detector_classifier;
 
+static cv::Point leftPupil;
+static cv::Point rightPupil;
+static cv::Rect leftEyeRegion;
+static cv::Rect rightEyeRegion;
+
+void findEyes(cv::Mat frame_gray, cv::Rect face);
+
 void setup() {
     pinMode(PIN_LED_GREEN, OUTPUT);
     pinMode(PIN_LED_RED, OUTPUT);
+    pinMode(PIN_SW0, INPUT);
+    pinMode(PIN_SW1, INPUT);
 
     // Camera
     camera.begin();
@@ -50,6 +60,7 @@ void setup() {
     }
 }
 
+static uint8_t flag = 0;
 void loop(){
     Mat img_raw(IMAGE_VW, IMAGE_HW, CV_8UC2, camera.getImageAdr());
 
@@ -73,6 +84,9 @@ void loop(){
     if (rect_faces.size() > 0) {
         // A face is detected
         face_roi = rect_faces[0];
+        if(flag==1){
+        	findEyes(src, rect_faces[0]);
+        }
     } else {
         // No face is detected, set an invalid rectangle
         face_roi.x = -1;
@@ -92,10 +106,32 @@ void loop(){
     cvtColor(img_raw, dst, COLOR_YUV2BGR_YUYV); //covert from YUV to BGR
     Scalar red(0, 0, 255), green(0, 255, 0), blue(255, 0, 0);
 
-    rectangle(dst, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
-    size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, dst.data, Camera::FORMAT_RGB888);
-    display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
+
+    if(digitalRead(PIN_SW0)==0){
+    	flag = 0x01;
+    }else{
+    	flag = 0x00;
+    }
+
+    if(flag==0x00){
+    	rectangle(dst, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
+    	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, dst.data, Camera::FORMAT_RGB888);
+		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
+    }else if(flag==0x01){
+		if (rect_faces.size() > 0) {
+			cv::Mat faceROI = dst(face_roi);
+//			circle(faceROI, rightPupil, 3, 1234);
+//			circle(faceROI, leftPupil, 3, 1234);
+	    	rectangle(dst, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
+			rectangle(faceROI, leftEyeRegion, red, 2);
+			rectangle(faceROI, rightEyeRegion, red, 2);
+
+			size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, dst.data, Camera::FORMAT_RGB888);
+			display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
+		}
+    }
 }
+
 
 void findEyes(cv::Mat frame_gray, cv::Rect face) {
   cv::Mat faceROI = frame_gray(face);
@@ -109,15 +145,18 @@ void findEyes(cv::Mat frame_gray, cv::Rect face) {
   int eye_region_width = face.width * (kEyePercentWidth/100.0);
   int eye_region_height = face.width * (kEyePercentHeight/100.0);
   int eye_region_top = face.height * (kEyePercentTop/100.0);
-  cv::Rect leftEyeRegion(face.width*(kEyePercentSide/100.0),
-                         eye_region_top,eye_region_width,eye_region_height);
-  cv::Rect rightEyeRegion(face.width - eye_region_width - face.width*(kEyePercentSide/100.0),
-                          eye_region_top,eye_region_width,eye_region_height);
+
+  leftEyeRegion.x = face.width*(kEyePercentSide/100.0);
+  leftEyeRegion.y = eye_region_top;
+  leftEyeRegion.width = eye_region_width;
+  leftEyeRegion.height = eye_region_height;
+
+  rightEyeRegion.x = face.width - eye_region_width - face.width*(kEyePercentSide/100.0);
+  rightEyeRegion.y = eye_region_top;
+  rightEyeRegion.width = eye_region_width;
+  rightEyeRegion.height = eye_region_height;
 
   //-- Find Eye Centers
-  cv::Point leftPupil;
-  cv::Point rightPupil;
-
 //  leftPupil = findEyeCenter(faceROI,leftEyeRegion,"Left Eye");
 //  rightPupil = findEyeCenter(faceROI,rightEyeRegion,"Right Eye");
 
@@ -140,51 +179,12 @@ void findEyes(cv::Mat frame_gray, cv::Rect face) {
   rightRightCornerRegion.x += rightPupil.x;
   rightRightCornerRegion.height /= 2;
   rightRightCornerRegion.y += rightRightCornerRegion.height / 2;
-  rectangle(debugFace,leftRightCornerRegion,200);
-  rectangle(debugFace,leftLeftCornerRegion,200);
-  rectangle(debugFace,rightLeftCornerRegion,200);
-  rectangle(debugFace,rightRightCornerRegion,200);
+
   // change eye centers to face coordinates
   rightPupil.x += rightEyeRegion.x;
   rightPupil.y += rightEyeRegion.y;
   leftPupil.x += leftEyeRegion.x;
   leftPupil.y += leftEyeRegion.y;
-  // draw eye centers
-//  circle(debugFace, rightPupil, 3, 1234);
-//  circle(debugFace, leftPupil, 3, 1234);
-
-  //-- Find Eye Corners
-  if (kEnableEyeCorner) {
-    cv::Point2f leftRightCorner;
-    cv::Point2f leftLeftCorner;
-    cv::Point2f rightLeftCorner;
-    cv::Point2f rightRightCorner;
-
-//    leftRightCorner = findEyeCorner(faceROI(leftRightCornerRegion), true, false);
-    leftRightCorner.x += leftRightCornerRegion.x;
-    leftRightCorner.y += leftRightCornerRegion.y;
-//    leftLeftCorner = findEyeCorner(faceROI(leftLeftCornerRegion), true, true);
-    leftLeftCorner.x += leftLeftCornerRegion.x;
-    leftLeftCorner.y += leftLeftCornerRegion.y;
-//    rightLeftCorner = findEyeCorner(faceROI(rightLeftCornerRegion), false, true);
-    rightLeftCorner.x += rightLeftCornerRegion.x;
-    rightLeftCorner.y += rightLeftCornerRegion.y;
-//    rightRightCorner = findEyeCorner(faceROI(rightRightCornerRegion), false, false);
-    rightRightCorner.x += rightRightCornerRegion.x;
-    rightRightCorner.y += rightRightCornerRegion.y;
-//    circle(faceROI, leftRightCorner, 3, 200);
-//    circle(faceROI, leftLeftCorner, 3, 200);
-//    circle(faceROI, rightLeftCorner, 3, 200);
-//    circle(faceROI, rightRightCorner, 3, 200);
-  }
-
-//  imshow(face_window_name, faceROI);
 }
 
-void detectAndDisplay( cv::Mat frame_gray ) {
-  std::vector<cv::Rect> faces;
 
-  if (faces.size() > 0) {
-    findEyes(frame_gray, faces[0]);
-  }
-}

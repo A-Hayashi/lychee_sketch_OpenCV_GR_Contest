@@ -367,7 +367,7 @@ gr_sketch.o: ../gr_sketch.cpp \
  C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHostHub/USBHostHub.h \
  C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostTypes.h \
  C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/IUSBEnumerator.h \
- ../constants.h
+ ../constants.h ../findEyeCenter.h ../findEyeCorner.h
 
 C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed_config.h:
 
@@ -1106,3 +1106,7 @@ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_c
 C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/IUSBEnumerator.h:
 
 ../constants.h:
+
+../findEyeCenter.h:
+
+../findEyeCorner.h:
