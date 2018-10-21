@@ -34,7 +34,7 @@ void setupUSB() { }
 Timer arduino_system_timer;
 #endif
 
-Thread visionTask(osPriorityNormal, (1024 * 33));
+Thread visionTask(osPriorityNormal, (1024 * 100));
 void vision_task(void)
 {
 #if defined(GRLYCHEE) || defined(GRPEACH)
