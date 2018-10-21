@@ -345,7 +345,28 @@ gr_sketch.o: ../gr_sketch.cpp \
  C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice/USBDevice/USBDevice_Types.h \
  C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice/USBDevice/USBHAL.h \
  C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice/USBDevice/USBEndpoints.h \
- C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice/USBSerial/CircBuffer.h
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice/USBSerial/CircBuffer.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/SdUsbConnect.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/FATFileSystem.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/FileSystem.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/ChaN/ff.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/ChaN/integer.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/ChaN/ffconf.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/SDBlockDevice_GRBoard/TARGET_RZ_A1XX/SDBlockDevice_GRBoard.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/SDBlockDevice_GRBoard/TARGET_RZ_A1XX/sd-driver-master/SDBlockDevice.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHostMSD/USBHostMSD.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostConf.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHost.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHALHost.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostTypes.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostConf.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBDeviceConnected.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBEndpoint.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/IUSBEnumerator.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/dbg.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHostHub/USBHostHub.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostTypes.h \
+ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/IUSBEnumerator.h
 
 C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed_config.h:
 
@@ -1040,3 +1061,45 @@ C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice
 C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice/USBDevice/USBEndpoints.h:
 
 C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBDevice/USBSerial/CircBuffer.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/SdUsbConnect.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/FATFileSystem.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/FileSystem.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/ChaN/ff.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/ChaN/integer.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-os/features/filesystem/fat/ChaN/ffconf.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/SDBlockDevice_GRBoard/TARGET_RZ_A1XX/SDBlockDevice_GRBoard.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/SDBlockDevice_GRBoard/TARGET_RZ_A1XX/sd-driver-master/SDBlockDevice.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHostMSD/USBHostMSD.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostConf.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHost.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHALHost.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostTypes.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostConf.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBDeviceConnected.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBEndpoint.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/IUSBEnumerator.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/dbg.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHostHub/USBHostHub.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/USBHostTypes.h:
+
+C:/Users/Akinori/e2_studio/workspace/lychee_sketch_OpenCV/mbed-gr-libs/USBHost_custom/USBHost/IUSBEnumerator.h:
