@@ -70,72 +70,63 @@ void setup() {
     }
 }
 
-static uint8_t flag = 0;
-void loop(){
-    Mat img_raw(IMAGE_VW, IMAGE_HW, CV_8UC2, camera.getImageAdr());
 
-    Mat img_gray(IMAGE_VW, IMAGE_HW, CV_8UC1, gray_buf);
-    cvtColor(img_raw, img_gray, COLOR_YUV2GRAY_YUYV); //covert from YUV to GRAY
+void FaceDetect(Mat &img_gray, Rect &face_roi)
+{
+   if (detector_classifier.empty()) {
+		digitalWrite(PIN_LED_RED, HIGH); // Error
+	}
 
-    // Detect a face in the frame
-    Rect face_roi;
-    if (detector_classifier.empty()) {
-        digitalWrite(PIN_LED_RED, HIGH); // Error
-    }
-
-    // Perform detected the biggest face
-    std::vector<Rect> rect_faces;
-    detector_classifier.detectMultiScale(img_gray, rect_faces,
-                                         DETECTOR_SCALE_FACTOR,
-                                         DETECTOR_MIN_NEIGHBOR,
+	// Perform detected the biggest face
+	std::vector<Rect> rect_faces;
+	detector_classifier.detectMultiScale(img_gray, rect_faces,
+										 DETECTOR_SCALE_FACTOR,
+										 DETECTOR_MIN_NEIGHBOR,
 										 CASCADE_SCALE_IMAGE | CASCADE_FIND_BIGGEST_OBJECT,
-                                         Size(DETECTOR_MIN_SIZE, DETECTOR_MIN_SIZE));
+										 Size(DETECTOR_MIN_SIZE, DETECTOR_MIN_SIZE));
 
-    if (rect_faces.size() > 0) {
-        // A face is detected
-        face_roi = rect_faces[0];
-    } else {
-        // No face is detected, set an invalid rectangle
-        face_roi.x = -1;
-        face_roi.y = -1;
-        face_roi.width = -1;
-        face_roi.height = -1;
-    }
+	if (rect_faces.size() > 0) {
+		// A face is detected
+		face_roi = rect_faces[0];
+	} else {
+		// No face is detected, set an invalid rectangle
+		face_roi.x = -1;
+		face_roi.y = -1;
+		face_roi.width = -1;
+		face_roi.height = -1;
+	}
 
-    if (face_roi.width > 0 && face_roi.height > 0) {   // A face is detected
-        digitalWrite(PIN_LED_GREEN, HIGH);
-        printf("Detected a face X:%d Y:%d W:%d H:%d\n",face_roi.x, face_roi.y, face_roi.width, face_roi.height);
-        digitalWrite(PIN_LED_GREEN, LOW);
-    } else {
-    }
-    Mat img_bgr(IMAGE_VW, IMAGE_HW, CV_8UC3, bgr_buf);
-    Mat img_hsv(IMAGE_VW, IMAGE_HW, CV_8UC3, hsv_buf);
+	if (face_roi.width > 0 && face_roi.height > 0) {   // A face is detected
+		digitalWrite(PIN_LED_GREEN, HIGH);
+		printf("Detected a face X:%d Y:%d W:%d H:%d\n",face_roi.x, face_roi.y, face_roi.width, face_roi.height);
+		digitalWrite(PIN_LED_GREEN, LOW);
+	} else {
+	}
+}
 
-    cvtColor(img_raw, img_bgr, COLOR_YUV2BGR_YUYV); //covert from YUV to BGR
-    cvtColor(img_bgr, img_hsv, COLOR_BGR2HSV); //covert from YUV to BGR
+void SkinDetect(Mat &img_hsv, Mat &img_gray, vector<Point> &contour, Point2f &center)
+{
+	medianBlur(img_hsv, img_hsv, 3);
 
-    medianBlur(img_hsv, img_hsv, 3);
-
-    Scalar s_min = Scalar(H_MIN, S_MIN, V_MIN);
+	Scalar s_min = Scalar(H_MIN, S_MIN, V_MIN);
 	Scalar s_max = Scalar(H_MAX, S_MAX, V_MAX);
 	inRange(img_hsv, s_min, s_max, img_gray);
 
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
-	size_t indexOfBiggestContour;
 	findContours(img_gray, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-	vector<Point2f> mc(contours.size()); //get centers
 
 	if(contours.size() > 0){
 		vector<Moments> mu(contours.size());
 		for (size_t i = 0; i < contours.size(); i++){
 			mu[i] = moments(contours[i], false);
 		}
+		vector<Point2f> mc(contours.size()); //get centers
 		for (size_t i = 0; i < contours.size(); i++)
 		{
 			mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
 		}
-		indexOfBiggestContour = -1;
+		size_t indexOfBiggestContour = -1;
 		size_t sizeOfBiggestContour = 0;
 		for (size_t i = 0; i < contours.size(); i++) {
 			if (contours[i].size() > sizeOfBiggestContour) {
@@ -143,9 +134,36 @@ void loop(){
 				indexOfBiggestContour = i;
 			}
 		}
+		contour = contours[indexOfBiggestContour];
+		center = mc[indexOfBiggestContour];
+	}else{
+		contour.clear();
+		center.x = 0;
+		center.y = 0;
 	}
 
-	Rect rect = boundingRect (contours[indexOfBiggestContour]);
+}
+
+static uint8_t flag = 0;
+void loop(){
+    Mat img_raw(IMAGE_VW, IMAGE_HW, CV_8UC2, camera.getImageAdr());
+    Mat img_gray(IMAGE_VW, IMAGE_HW, CV_8UC1, gray_buf);
+    Mat img_bgr(IMAGE_VW, IMAGE_HW, CV_8UC3, bgr_buf);
+    Mat img_hsv(IMAGE_VW, IMAGE_HW, CV_8UC3, hsv_buf);
+
+    cvtColor(img_raw, img_gray, COLOR_YUV2GRAY_YUYV); //covert from YUV to GRAY
+
+    // Detect a face in the frame
+    Rect face_roi;
+    FaceDetect(img_gray, face_roi);
+
+    cvtColor(img_raw, img_bgr, COLOR_YUV2BGR_YUYV); //covert from YUV to BGR
+    cvtColor(img_bgr, img_hsv, COLOR_BGR2HSV); //covert from YUV to BGR
+
+    vector<Point> contour;
+    Point2f center;
+//    SkinDetect(img_hsv, img_gray, contour, center);
+	Rect rect = boundingRect (contour);
 //	rect.x -= 40;
 //	rect.y -= 40;
 //	rect.width += 80;
@@ -165,8 +183,8 @@ void loop(){
     if(flag==0x00){
     	rectangle(img_bgr, rect, blue, 2);
     	rectangle(img_bgr, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
-		drawContours(img_bgr, contours, indexOfBiggestContour, sky, 2, 8, vector<Vec4i>(), 0, Point());
-		circle(img_bgr, mc[indexOfBiggestContour], 5, red, -1, 8, 0);
+		drawContours(img_bgr, contour, 0, sky, 2, 8, vector<Vec4i>(), 0, Point());
+		circle(img_bgr, center, 5, red, -1, 8, 0);
     	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_bgr.data, Camera::FORMAT_RGB888);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
     }else if(flag==0x01){
