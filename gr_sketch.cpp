@@ -21,9 +21,9 @@
 using namespace cv;
 
 /* FACE DETECTOR Parameters */
-#define DETECTOR_SCALE_FACTOR (1.99)
-#define DETECTOR_MIN_NEIGHBOR (3)
-#define DETECTOR_MIN_SIZE     (80)
+#define DETECTOR_SCALE_FACTOR (1.50)
+#define DETECTOR_MIN_NEIGHBOR (2)
+#define DETECTOR_MIN_SIZE     (50)
 #define FACE_DETECTOR_MODEL     "/storage/lbpcascade_frontalface.xml"
 
 static Camera camera(IMAGE_HW, IMAGE_VW);
@@ -40,6 +40,7 @@ static CascadeClassifier detector_classifier;
 uint8_t bgr_buf [3 * IMAGE_HW * IMAGE_VW] __attribute((section("NC_BSS"),aligned(32)));
 uint8_t hsv_buf [3 * IMAGE_HW * IMAGE_VW] __attribute((section("NC_BSS"),aligned(32)));
 uint8_t gray_buf [1 * IMAGE_HW * IMAGE_VW] __attribute((section("NC_BSS"),aligned(32)));
+uint8_t mask_buf [1 * IMAGE_HW * IMAGE_VW] __attribute((section("NC_BSS"),aligned(32)));
 
 Scalar red(0, 0, 255), green(0, 255, 0), blue(255, 0, 0);
 Scalar yellow = red + green;
@@ -148,26 +149,36 @@ static uint8_t flag = 0;
 void loop(){
     Mat img_raw(IMAGE_VW, IMAGE_HW, CV_8UC2, camera.getImageAdr());
     Mat img_gray(IMAGE_VW, IMAGE_HW, CV_8UC1, gray_buf);
+    Mat img_mask(IMAGE_VW, IMAGE_HW, CV_8UC1, mask_buf);
     Mat img_bgr(IMAGE_VW, IMAGE_HW, CV_8UC3, bgr_buf);
     Mat img_hsv(IMAGE_VW, IMAGE_HW, CV_8UC3, hsv_buf);
 
-    cvtColor(img_raw, img_gray, COLOR_YUV2GRAY_YUYV); //covert from YUV to GRAY
-
-    // Detect a face in the frame
-    Rect face_roi;
-    FaceDetect(img_gray, face_roi);
-
-    cvtColor(img_raw, img_bgr, COLOR_YUV2BGR_YUYV); //covert from YUV to BGR
-    cvtColor(img_bgr, img_hsv, COLOR_BGR2HSV); //covert from YUV to BGR
-
     vector<Point> contour;
     Point2f center;
-    SkinDetect(img_hsv, img_gray, contour, center);
+    cvtColor(img_raw, img_bgr, COLOR_YUV2BGR_YUYV); //covert from YUV to BGR
+    cvtColor(img_bgr, img_hsv, COLOR_BGR2HSV); //covert from YUV to BGR
+    SkinDetect(img_hsv, img_mask, contour, center);
 
-//	rect.x -= 40;
-//	rect.y -= 40;
-//	rect.width += 80;
-//	rect.height += 80;
+
+	cvtColor(img_raw, img_gray, COLOR_YUV2GRAY_YUYV); //covert from YUV to GRAY
+	Mat img_gray_roi;
+	Rect rect, rect2, face_roi;
+
+	if(contour.size() > 0){
+		Rect rect_base(0, 0, IMAGE_HW, IMAGE_VW);
+		rect = boundingRect(contour);
+		rect2 = rect;
+		Size deltaSize(rect.width*0.3f, rect.height*0.3f);
+		Point offset(deltaSize.width/2, deltaSize.height/2 + rect.height*0.2f);
+		rect += deltaSize;
+		rect -= offset;
+		rect &= rect_base;
+		img_gray_roi = img_gray(rect);
+
+		// Detect a face in the frame
+	    FaceDetect(img_gray_roi, face_roi);
+	    face_roi += Point(rect.x, rect.y);
+	}
 
     if(digitalRead(PIN_SW0)==0){
     	flag = 0x01;
@@ -181,25 +192,31 @@ void loop(){
     img_bgr2 = Mat::zeros(IMAGE_VW, IMAGE_HW, CV_8UC3);
 
     if(flag==0x00){
-    	rectangle(img_bgr, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
+    	if (face_roi.width > 0 && face_roi.height > 0){
+    		rectangle(img_bgr, face_roi, red, 2);
+    	}
     	if(contour.size() > 0){
-    		Rect rect = boundingRect(contour);
 			rectangle(img_bgr, rect, blue, 2);
+			rectangle(img_bgr, rect2, pink, 2);
 			polylines(img_bgr, contour, true, sky, 2, 8);
 			circle(img_bgr, center, 5, red, -1, 8, 0);
     	}
     	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_bgr.data, Camera::FORMAT_RGB888);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
-    }else if(flag==0x01){
-    	img_bgr.copyTo(img_bgr2, img_gray);
-    	rectangle(img_bgr2, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
-    	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_bgr2.data, Camera::FORMAT_RGB888);
+	}else if(flag==0x01){
+		img_bgr.copyTo(img_bgr2, img_mask);
+		if (face_roi.width > 0 && face_roi.height > 0){
+			rectangle(img_bgr, face_roi, red, 2);
+		}
+		size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_bgr2.data, Camera::FORMAT_RGB888);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
-    }else if(flag==0x02){
-    	rectangle(img_gray, Point(face_roi.x, face_roi.y), Point(face_roi.x + face_roi.width, face_roi.y + face_roi.height), red, 2);
-    	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_gray.data, Camera::FORMAT_GRAY);
+	}else if(flag==0x02){
+		if (face_roi.width > 0 && face_roi.height > 0){
+			rectangle(img_bgr, face_roi, red, 2);
+		}
+		size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_mask.data, Camera::FORMAT_GRAY);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
-    }
+	}
 }
 
 
