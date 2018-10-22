@@ -21,9 +21,9 @@
 using namespace cv;
 
 /* FACE DETECTOR Parameters */
-#define DETECTOR_SCALE_FACTOR (1.50)
+#define DETECTOR_SCALE_FACTOR (1.05)
 #define DETECTOR_MIN_NEIGHBOR (2)
-#define DETECTOR_MIN_SIZE     (50)
+#define DETECTOR_MIN_SIZE     (80)
 #define FACE_DETECTOR_MODEL     "/storage/lbpcascade_frontalface.xml"
 
 static Camera camera(IMAGE_HW, IMAGE_VW);
@@ -48,6 +48,8 @@ Scalar sky = green + blue;
 Scalar white = Scalar::all(255);
 Scalar pink = Scalar(154, 51, 255);
 
+Timer t;
+
 void setup() {
     pinMode(PIN_LED_GREEN, OUTPUT);
     pinMode(PIN_LED_RED, OUTPUT);
@@ -69,6 +71,9 @@ void setup() {
         CV_Assert(0);
         mbed_die();
     }
+
+    t.reset();
+    t.start();
 }
 
 
@@ -168,7 +173,7 @@ void loop(){
 		Rect rect_base(0, 0, IMAGE_HW, IMAGE_VW);
 		rect = boundingRect(contour);
 		rect2 = rect;
-		Size deltaSize(rect.width*0.3f, rect.height*0.3f);
+		Size deltaSize(rect.width*0.5f, rect.height*0.3f);
 		Point offset(deltaSize.width/2, deltaSize.height/2 + rect.height*0.2f);
 		rect += deltaSize;
 		rect -= offset;
@@ -192,14 +197,27 @@ void loop(){
     img_bgr2 = Mat::zeros(IMAGE_VW, IMAGE_HW, CV_8UC3);
 
     if(flag==0x00){
+  		static int nose = 0;
+    	static int c = 0;
     	if (face_roi.width > 0 && face_roi.height > 0){
-    		rectangle(img_bgr, face_roi, red, 2);
+    		rectangle(img_bgr, face_roi, red, 1);
+    		circle(img_bgr, Point(face_roi.x+face_roi.width/2, face_roi.y+face_roi.height/2), 5, red, -1, 8, 0);
+    		if(t.read_ms()>500){
+    			t.reset();
+    			nose = face_roi.x+face_roi.width/2;
+    			c = center.x;
+    		}
     	}
+		if(nose < c){
+			putText(img_bgr, "Right", Point(10,50), FONT_HERSHEY_SIMPLEX, 1.2, red, 2, LINE_AA);
+		}else if(nose > c){
+			putText(img_bgr, "Left", Point(10,50), FONT_HERSHEY_SIMPLEX, 1.2, red, 2, LINE_AA);
+		}
     	if(contour.size() > 0){
-			rectangle(img_bgr, rect, blue, 2);
-			rectangle(img_bgr, rect2, pink, 2);
-			polylines(img_bgr, contour, true, sky, 2, 8);
-			circle(img_bgr, center, 5, red, -1, 8, 0);
+			rectangle(img_bgr, rect, blue, 1);
+			rectangle(img_bgr, rect2, pink, 1);
+			polylines(img_bgr, contour, true, green, 1, 8);
+			circle(img_bgr, center, 5, green, -1, 8, 0);
     	}
     	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_bgr.data, Camera::FORMAT_RGB888);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
@@ -217,6 +235,8 @@ void loop(){
 		size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_mask.data, Camera::FORMAT_GRAY);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
 	}
+
+
 }
 
 
