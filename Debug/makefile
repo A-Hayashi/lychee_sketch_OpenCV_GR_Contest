@@ -186,38 +186,38 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 SECONDARY_FLASH += \
-lychee_sketch_OpenCV.bin \
+lychee_sketch_OpenCV_old.bin \
 
 SECONDARY_SIZE += \
-lychee_sketch_OpenCV.siz \
+lychee_sketch_OpenCV_old.siz \
 
 
 # All Target
-all: lychee_sketch_OpenCV.elf secondary-outputs
+all: lychee_sketch_OpenCV_old.elf secondary-outputs
 
 # Tool invocations
-lychee_sketch_OpenCV.elf: $(OBJS) $(USER_OBJS)
+lychee_sketch_OpenCV_old.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-a9 -march=armv7-a -marm -mthumb-interwork -mfloat-abi=hard -mfpu=vfpv3 -mno-unaligned-access -O2 -fmessage-length=0 -ffunction-sections -fdata-sections -fno-builtin -funsigned-char -fno-delete-null-pointer-checks -fomit-frame-pointer -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers  -g -T "C:\\Users\\Akinori\\e2_studio\\workspace\\lychee_sketch_OpenCV\\mbed-os\\targets\\TARGET_RENESAS\\TARGET_RZ_A1XX\\TARGET_GR_LYCHEE\\device\\TOOLCHAIN_GCC_ARM\\RZA1LU.ld" -Xlinker --gc-sections -Xlinker --wrap=main -Xlinker --wrap=_malloc_r -Xlinker --wrap=_free_r -Xlinker --wrap=_realloc_r -Xlinker --wrap=_memalign_r -Xlinker --wrap=_calloc_r -Xlinker --wrap=exit -Xlinker --wrap=atexit -Wl,-Map,"lychee_sketch_OpenCV.map" -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -Wl,-n -mthumb-interwork -march=armv7-a -mfpu=vfpv3 -mno-unaligned-access -Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -Wl,--end-group -o "lychee_sketch_OpenCV.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-a9 -march=armv7-a -marm -mthumb-interwork -mfloat-abi=hard -mfpu=vfpv3 -mno-unaligned-access -O2 -fmessage-length=0 -ffunction-sections -fdata-sections -fno-builtin -funsigned-char -fno-delete-null-pointer-checks -fomit-frame-pointer -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers  -g -T "C:\\Users\\Akinori\\e2_studio\\workspace\\lychee_sketch_OpenCV_old\\mbed-os\\targets\\TARGET_RENESAS\\TARGET_RZ_A1XX\\TARGET_GR_LYCHEE\\device\\TOOLCHAIN_GCC_ARM\\RZA1LU.ld" -Xlinker --gc-sections -Xlinker --wrap=main -Xlinker --wrap=_malloc_r -Xlinker --wrap=_free_r -Xlinker --wrap=_realloc_r -Xlinker --wrap=_memalign_r -Xlinker --wrap=_calloc_r -Xlinker --wrap=exit -Xlinker --wrap=atexit -Wl,-Map,"lychee_sketch_OpenCV_old.map" -DMBED_DEBUG -DMBED_TRAP_ERRORS_ENABLED=1 -Wl,-n -mthumb-interwork -march=armv7-a -mfpu=vfpv3 -mno-unaligned-access -Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -Wl,--end-group -o "lychee_sketch_OpenCV_old.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-lychee_sketch_OpenCV.bin: lychee_sketch_OpenCV.elf
+lychee_sketch_OpenCV_old.bin: lychee_sketch_OpenCV_old.elf
 	@echo 'Invoking: Cross ARM GNU Create Flash Image'
-	arm-none-eabi-objcopy -O binary "lychee_sketch_OpenCV.elf"  "lychee_sketch_OpenCV.bin"
+	arm-none-eabi-objcopy -O binary "lychee_sketch_OpenCV_old.elf"  "lychee_sketch_OpenCV_old.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-lychee_sketch_OpenCV.siz: lychee_sketch_OpenCV.elf
+lychee_sketch_OpenCV_old.siz: lychee_sketch_OpenCV_old.elf
 	@echo 'Invoking: Cross ARM GNU Print Size'
-	arm-none-eabi-size --format=berkeley "lychee_sketch_OpenCV.elf"
+	arm-none-eabi-size --format=berkeley "lychee_sketch_OpenCV_old.elf"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(JMP_DEPS)$(FSY_DEPS)$(C_UPPER_DEPS)$(SECONDARY_SIZE)$(P_DEPS)$(C_DEPS)$(SRC_DEPS)$(PP_DEPS)$(CC_DEPS)$(SX_DEPS)$(C++_DEPS)$(OBJS)$(CXX_DEPS)$(SECONDARY_FLASH)$(ASM_DEPS)$(S_UPPER_DEPS)$(CPP_DEPS) lychee_sketch_OpenCV.elf
+	-$(RM) $(JMP_DEPS)$(FSY_DEPS)$(C_UPPER_DEPS)$(SECONDARY_SIZE)$(P_DEPS)$(C_DEPS)$(SRC_DEPS)$(PP_DEPS)$(CC_DEPS)$(SX_DEPS)$(C++_DEPS)$(OBJS)$(CXX_DEPS)$(SECONDARY_FLASH)$(ASM_DEPS)$(S_UPPER_DEPS)$(CPP_DEPS) lychee_sketch_OpenCV_old.elf
 	-@echo ' '
 
 secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_SIZE)
