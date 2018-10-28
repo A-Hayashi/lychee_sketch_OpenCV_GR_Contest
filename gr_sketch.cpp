@@ -110,9 +110,9 @@ void FaceDetect(Mat &img_gray, Rect &face_roi)
 	}
 }
 
-void SkinDetect(Mat &img_hsv, Mat &img_gray, vector<Point> &contour, Point2f &center)
+void SkinDetect(Mat &img_hsv, Mat &img_gray, vector<Point> &contour, Point2f &center, vector<Point> &contour2)
 {
-	medianBlur(img_hsv, img_hsv, 3);
+//	medianBlur(img_hsv, img_hsv, 3);
 
 	Scalar s_min = Scalar(H_MIN, S_MIN, V_MIN);
 	Scalar s_max = Scalar(H_MAX, S_MAX, V_MAX);
@@ -134,16 +134,30 @@ void SkinDetect(Mat &img_hsv, Mat &img_gray, vector<Point> &contour, Point2f &ce
 		}
 		size_t indexOfBiggestContour = -1;
 		size_t sizeOfBiggestContour = 0;
+		size_t indexOfSecondContour = -1;
+		size_t sizeOfSecondContour = 0;
+
 		for (size_t i = 0; i < contours.size(); i++) {
-			if (contours[i].size() > sizeOfBiggestContour) {
-				sizeOfBiggestContour = contours[i].size();
+			size_t area = contourArea(contours[i]);
+			if (area > sizeOfBiggestContour) {
+				sizeOfBiggestContour = area;
 				indexOfBiggestContour = i;
+			}else if(area > sizeOfSecondContour){
+				sizeOfSecondContour = area;
+				indexOfSecondContour = i;
 			}
 		}
 		contour = contours[indexOfBiggestContour];
 		center = mc[indexOfBiggestContour];
+
+		if(indexOfSecondContour>0){
+			contour2 = contours[indexOfSecondContour];
+		}else{
+			contour2.clear();
+		}
 	}else{
 		contour.clear();
+		contour2.clear();
 		center.x = -1;
 		center.y = -1;
 	}
@@ -158,11 +172,11 @@ void loop(){
     Mat img_bgr(IMAGE_VW, IMAGE_HW, CV_8UC3, bgr_buf);
     Mat img_hsv(IMAGE_VW, IMAGE_HW, CV_8UC3, hsv_buf);
 
-    vector<Point> contour;
+    vector<Point> contour, contour2;
     Point2f center;
     cvtColor(img_raw, img_bgr, COLOR_YUV2BGR_YUYV); //covert from YUV to BGR
     cvtColor(img_bgr, img_hsv, COLOR_BGR2HSV); //covert from YUV to BGR
-    SkinDetect(img_hsv, img_mask, contour, center);
+    SkinDetect(img_hsv, img_mask, contour, center, contour2);
 
 
 	cvtColor(img_raw, img_gray, COLOR_YUV2GRAY_YUYV); //covert from YUV to GRAY
@@ -219,6 +233,10 @@ void loop(){
 			polylines(img_bgr, contour, true, green, 1, 8);
 			circle(img_bgr, center, 5, green, -1, 8, 0);
     	}
+
+//    	if(contour2.size() > 0){
+//			polylines(img_bgr, contour2, true, green, 1, 8);
+//    	}
     	size_t jpegSize = camera.createJpeg(IMAGE_HW, IMAGE_VW, img_bgr.data, Camera::FORMAT_RGB888);
 		display_app.SendJpeg(camera.getJpegAdr(), jpegSize);
 	}else if(flag==0x01){
